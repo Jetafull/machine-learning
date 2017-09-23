@@ -1,26 +1,37 @@
+    * On green light: if there is no oncoming traffic, 'forward', 'right', 'left' might be correct. 'None' must be wrong. If there is oncoming traffic on the next waypoint direction, 'None' should be the optimal policy. In particular, on a green light, a left turn is permitted if there is no oncoming traffic making a right turn or coming straight through the intersection.
+        * ('right', 'green', 'left') -> 'None'
+        * ('right', 'green', *except 'left'*) -> 'right'
+        * ('left', 'green', *'right' or 'forward') -> 'None'
+        * ('left', 'green', *'left' or 'None'*) -> 'left'
+        * ('forward', 'green', *except 'left'*) -> 'forward'
+        * ('forward', 'green', *'left'*) -> None
+    * On a red light: if the next waypoint direction is 'right' and no oncoming traffic is approaching the smartcab from left through the intersection, 'right' is the optimal policy. Otherwise, 'None' is the optimal policy.
+        * ('right', 'red', 'left') -> 'None'
+        * ('right', 'red', *except 'left'*) -> 'right'
+        * (*except 'right'*, 'red', *all*) -> 'None'
 /-----------------------------------------
 | State-action rewards from Q-Learning
 \-----------------------------------------
 
-('left', 'green', 'forward')
+('left', 'green', 'forward') => None | right
  -- forward : -0.32
  -- None : -4.00
  -- right : 0.00
  -- left : -19.70
 
-('right', 'green', 'right')
+('right', 'green', 'right') => right | right/left
  -- forward : 0.27
  -- None : -5.00
  -- right : 0.00
  -- left : 0.00
 
-('forward', 'green', 'left')
+('forward', 'green', 'left') => None | forward
  -- forward : 1.61
  -- None : -5.70
  -- right : 1.48
  -- left : 0.29
 
-('left', 'green', 'right')
+('left', 'green', 'right') => 'None' | 'forward'
  -- forward : 0.97
  -- None : 0.00
  -- right : 0.00
@@ -134,15 +145,14 @@
  -- right : 0.57
  -- left : 0.00
 
-('left', 'green', 'left')
+('left', 'green', 'left') => 'left'
  -- forward : 0.19
  -- None : 0.00
  -- right : -0.51
  -- left : 1.17
 
-('right', 'green', 'left')
+('right', 'green', 'left') =>
  -- forward : 0.00
  -- None : -5.27
  -- right : 1.66
  -- left : 0.43
-
