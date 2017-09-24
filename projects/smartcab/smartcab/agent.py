@@ -51,7 +51,7 @@ class LearningAgent(Agent):
             #self.epsilon = self.epsilon - 0.05
             #self.epsilon = 1/(num_trials**2)
             #self.epsilon = 0.8**(num_trials)
-            self.epsilon = np.exp(-0.1*num_trials)
+            self.epsilon = np.exp(-0.01*num_trials)
 
         return None
 
@@ -78,7 +78,7 @@ class LearningAgent(Agent):
         state = (waypoint,
                  inputs['light'],
                 #  inputs['left'],
-                 #inputs['right'],
+                 inputs['right'],
                  inputs['oncoming'],
                  )
 
@@ -137,8 +137,10 @@ class LearningAgent(Agent):
             if random.random() < self.epsilon:
                 action = random.choice(self.valid_actions)
             else:
-                q_state = self.Q[state]
-                action = max(q_state, key=q_state.get)
+                #action = max(q_state, key=q_state.get)
+                max_q = self.get_maxQ(state)
+                action = [act for act, reward in self.Q[state].items() if reward == max_q]
+                action = random.choice(action)
         return action
 
 
@@ -152,8 +154,9 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        old_reward = self.Q[state][action]
-        self.Q[state][action] = old_reward + self.alpha*(reward - old_reward)
+        if self.learning:
+            old_reward = self.Q[state][action]
+            self.Q[state][action] = old_reward + self.alpha*(reward - old_reward)
 
         return
 
@@ -190,7 +193,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=True, epsilon=1, alpha=0.9)
+    agent = env.create_agent(LearningAgent, learning=True, epsilon=1, alpha=0.3)
 
     ##############
     # Follow the driving agent
@@ -212,7 +215,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10, tolerance=0.05)
+    sim.run(n_test=50, tolerance=1e-3)
 
 
 if __name__ == '__main__':
